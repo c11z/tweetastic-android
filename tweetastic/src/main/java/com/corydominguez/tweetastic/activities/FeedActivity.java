@@ -1,34 +1,42 @@
 package com.corydominguez.tweetastic.activities;
 
 import android.app.Activity;
-import android.app.ActionBar;
-import android.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.os.Build;
 
 import com.corydominguez.tweetastic.R;
 import com.corydominguez.tweetastic.TweetasticApp;
-import com.loopj.android.http.JsonHttpResponseHandler;
+import com.corydominguez.tweetastic.models.Tweet;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.loopj.android.http.AsyncHttpResponseHandler;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class FeedActivity extends Activity {
-
+    private static final ObjectMapper mapper = new ObjectMapper().configure(
+            DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed);
-        TweetasticApp.getRestClient().getHomeTimeline(new JsonHttpResponseHandler() {
+        TweetasticApp.getRestClient().getHomeTimeline(new AsyncHttpResponseHandler() {
             @Override
-            public void onSuccess(JSONArray json) {
-                Log.d("DEBUG", json.toString());
+            public void onSuccess(String s) {
+                try {
+                    TypeReference<ArrayList<Tweet>> tr = new TypeReference<ArrayList<Tweet>>() {};
+                    ArrayList<Tweet> response = mapper.readValue(s, tr);
+                    Log.d("DEBUG", response.toString());
+                } catch (JsonParseException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
