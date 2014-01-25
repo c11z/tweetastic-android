@@ -34,13 +34,12 @@ public class FeedAdapter extends ArrayAdapter<Tweet> {
         }
         Tweet tweet = getItem(position);
         ImageView ivProfile = (ImageView) view.findViewById(R.id.ivProfile);
-        assert(ivProfile != null);
         ImageLoader.getInstance().displayImage(tweet.getUser().getProfileImageUrl(), ivProfile);
-        TextView nameView = (TextView) view.findViewById(R.id.tvName);
+        TextView tvName = (TextView) view.findViewById(R.id.tvName);
         String formattedName = "<b>" + tweet.getUser().getName() + "</b>" +
                                " <small><font color='#777777'>@" + tweet.getUser().getScreenName() +
                                "</font></small>";
-        nameView.setText(Html.fromHtml(formattedName));
+        tvName.setText(Html.fromHtml(formattedName));
         TextView bodyView = (TextView) view.findViewById(R.id.tvBody);
         bodyView.setText(Html.fromHtml(tweet.getText()));
         return view;

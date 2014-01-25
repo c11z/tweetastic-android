@@ -4,6 +4,11 @@
     <string name="app_name">Tweetastic</string>
     <string name="action_compose">Compose Tweets</string>
     <string name="login_label">Sign In</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="button_tweet">Tweet</string>
+    <string name="profile_image_description">Profile Image Description</string>
+    <string name="whats_happening">What\'s happening?</string>
 
 
 </resources>

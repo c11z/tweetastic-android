@@ -2,11 +2,17 @@ package com.corydominguez.tweetastic.apps;
 
 import android.app.Application;
 import android.content.Context;
-
 import com.corydominguez.tweetastic.clients.TwitterClient;
+import com.corydominguez.tweetastic.models.User;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+
+import java.io.IOException;
 
 /*
  * This is the Android application itself and is used to configure various settings
@@ -19,7 +25,11 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
  */
 public class TweetasticApp extends Application {
 	private static Context context;
-	
+    public static User me;
+
+    public static final ObjectMapper mapper = new ObjectMapper().configure(
+            DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -33,7 +43,7 @@ public class TweetasticApp extends Application {
             .build();
         ImageLoader.getInstance().init(config);
     }
-    
+
     public static TwitterClient getRestClient() {
     	return (TwitterClient) TwitterClient.getInstance(TwitterClient.class, TweetasticApp.context);
     }
