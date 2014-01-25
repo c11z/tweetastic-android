@@ -3,27 +3,19 @@ package com.corydominguez.tweetastic.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.corydominguez.tweetastic.R;
 import com.corydominguez.tweetastic.adapters.FeedAdapter;
-import com.corydominguez.tweetastic.apps.TweetasticApp;
+import com.corydominguez.tweetastic.TweetasticApp;
 import com.corydominguez.tweetastic.models.Tweet;
-import com.corydominguez.tweetastic.models.User;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,32 +32,17 @@ public class FeedActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed);
+        // Get List view and set adapter to existing list
         lvTweetFeed = (ListView) findViewById(R.id.lvTweetFeed);
         adapter = new FeedAdapter(getBaseContext(), tweets);
         lvTweetFeed.setAdapter(adapter);
-        RequestParams params = new RequestParams();
-        if (TweetasticApp.me == null) {
-            TweetasticApp.getRestClient().getUserInfo(new AsyncHttpResponseHandler() {
-                @Override
-                public void onSuccess(String s) {
-                    try {
-                        TweetasticApp.me = TweetasticApp.mapper.readValue(s, User.class);
-                    } catch (JsonParseException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-        }
-
+        // Check if first api call has been run, if so call onRefresh, otherwise make first call
         if (youngestId != null) {
-            params.put("since_id", youngestId.toString());
-            moarTweets(params);
-            lvTweetFeed.smoothScrollToPosition(0);
+           onRefresh(null);
         } else {
             moarTweets(null);
         }
+        // Add infinite scroll here
     }
 
     public void onCompose(MenuItem menuItem) {
@@ -75,12 +52,11 @@ public class FeedActivity extends Activity {
 
     public void onRefresh (MenuItem menuItem) {
         RequestParams params = new RequestParams();
-        if (youngestId != null) {
-            params.put("since_id", youngestId.toString());
-            moarTweets(params);
-        } else {
-            moarTweets(null);
-        }
+        // youngestId should always be set by the time refresh is called
+        assert(youngestId != null);
+        params.put("since_id", youngestId.toString());
+        moarTweets(params);
+        // smooth scroll to top
         lvTweetFeed.smoothScrollToPosition(0);
     }
 
@@ -119,6 +95,7 @@ public class FeedActivity extends Activity {
 
             @Override
             public void onFailure(Throwable throwable, String s) {
+                // So... yeah, sometimes you get rate limited.
                 if (s.contains("Rate limit exceeded")) {
                     assert (getApplicationContext() != null);
                     Toast.makeText(getApplicationContext(), "Rate Limit Exceeded",

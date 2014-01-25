@@ -1,7 +1,6 @@
 package com.corydominguez.tweetastic.activities;
 
 import android.app.Activity;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
@@ -12,7 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.corydominguez.tweetastic.R;
-import com.corydominguez.tweetastic.apps.TweetasticApp;
+import com.corydominguez.tweetastic.TweetasticApp;
 import com.corydominguez.tweetastic.models.Tweet;
 import com.corydominguez.tweetastic.models.User;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -46,30 +45,41 @@ public class ComposeActivity extends Activity {
         EditText etStatus = (EditText) findViewById(R.id.etStatus);
         assert(etStatus.getText() != null);
         String status = etStatus.getText().toString();
+        // If message is empty
         if (status.equals("")) {
             Toast.makeText(this, "Status message is empty :(", Toast.LENGTH_SHORT).show();
-        }
-        params.put("status", status);
-        TweetasticApp.getRestClient().postUpdate(params, new AsyncHttpResponseHandler() {
-            @Override
-            public void onSuccess(String s) {
-                try {
-                    Tweet tweet = TweetasticApp.mapper.readValue(s, Tweet.class);
-                    // Create intent and send back to feed to be added to the adapter and loaded
-                    // into the feed.
-                    Log.d("DEBUG", tweet.toString());
-                    finish();
-                } catch (JsonParseException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
+        } else {
+            params.put("status", status);
+            TweetasticApp.getRestClient().postUpdate(params, new AsyncHttpResponseHandler() {
+                @Override
+                public void onSuccess(String s) {
+                    try {
+                        Tweet tweet = TweetasticApp.mapper.readValue(s, Tweet.class);
+                        // When app returns to feed activity refresh is called
+                        Log.d("DEBUG", tweet.toString());
+                        finish();
+                    } catch (JsonParseException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-        });
 
+                @Override
+                public void onFailure(Throwable throwable, String s) {
+                    // So... yeah, sometimes you get rate limited.
+                    if (s.contains("Rate limit exceeded")) {
+                        assert (getApplicationContext() != null);
+                        Toast.makeText(getApplicationContext(), "Rate Limit Exceeded",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
     }
 
     public void onCancel(View v) {
+        // Do not pass go, do not collect 200 dollars
         finish();
     }
 }

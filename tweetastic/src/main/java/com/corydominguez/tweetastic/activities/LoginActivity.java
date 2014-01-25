@@ -2,12 +2,17 @@ package com.corydominguez.tweetastic.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.View;
 
 import com.codepath.oauth.OAuthLoginActivity;
 import com.corydominguez.tweetastic.R;
+import com.corydominguez.tweetastic.TweetasticApp;
 import com.corydominguez.tweetastic.clients.TwitterClient;
+import com.corydominguez.tweetastic.models.User;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+
+import java.io.IOException;
 
 public class LoginActivity extends OAuthLoginActivity<TwitterClient> {
 
@@ -21,6 +26,19 @@ public class LoginActivity extends OAuthLoginActivity<TwitterClient> {
 	// i.e Display application "homepage"
     @Override
     public void onLoginSuccess() {
+        // Make call and get user information
+        TweetasticApp.getRestClient().getUserInfo(new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(String s) {
+                try {
+                    TweetasticApp.me = TweetasticApp.mapper.readValue(s, User.class);
+                } catch (JsonParseException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     	Intent i = new Intent(this, FeedActivity.class);
     	startActivity(i);
     }
