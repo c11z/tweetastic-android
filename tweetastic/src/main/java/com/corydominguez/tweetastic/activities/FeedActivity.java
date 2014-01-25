@@ -11,6 +11,7 @@ import android.widget.Toast;
 import com.corydominguez.tweetastic.R;
 import com.corydominguez.tweetastic.adapters.FeedAdapter;
 import com.corydominguez.tweetastic.TweetasticApp;
+import com.corydominguez.tweetastic.listeners.EndlessScrollListener;
 import com.corydominguez.tweetastic.models.Tweet;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -42,7 +43,17 @@ public class FeedActivity extends Activity {
         } else {
             moarTweets(null);
         }
-        // Add infinite scroll here
+        // Load more tweets when feed list is scrolled to the bottom.
+        lvTweetFeed.setOnScrollListener(new EndlessScrollListener() {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount) {
+                if (totalItemsCount < 200) {
+                    RequestParams params = new RequestParams();
+                    params.put("max_id", oldestId.toString());
+                    moarTweets(params);
+                }
+            }
+        });
     }
 
     public void onCompose(MenuItem menuItem) {
@@ -82,9 +93,12 @@ public class FeedActivity extends Activity {
                                 return tweet2.getId().compareTo(tweet.getId());
                             }
                         });
-                        youngestId = tweets.get(0).getId();
-                        oldestId = tweets.get(tweets.size()-1).getId();
-
+                        if (youngestId == null || tweets.get(0).getId() > youngestId) {
+                            youngestId = tweets.get(0).getId();
+                        }
+                        if (oldestId ==null || tweets.get(tweets.size()-1).getId() < oldestId) {
+                            oldestId = tweets.get(tweets.size()-1).getId();
+                        }
                     }
                 } catch (JsonParseException e) {
                     e.printStackTrace();
