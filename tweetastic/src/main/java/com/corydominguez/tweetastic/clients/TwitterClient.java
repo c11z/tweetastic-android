@@ -1,7 +1,6 @@
-package com.corydominguez.tweetastic;
+package com.corydominguez.tweetastic.clients;
 
 import org.scribe.builder.api.Api;
-import org.scribe.builder.api.FlickrApi;
 import org.scribe.builder.api.TwitterApi;
 
 import android.content.Context;
@@ -40,14 +39,14 @@ public class TwitterClient extends OAuthBaseClient {
     }
     // CHANGE THIS
     // DEFINE METHODS for different API endpoints here
-    public void getInterestingnessList(AsyncHttpResponseHandler handler) {
-        String apiUrl = getApiUrl("?nojsoncallback=1&method=flickr.interestingness.getList");
-        // Can specify query string params directly or through RequestParams.
-        RequestParams params = new RequestParams();
-        params.put("format", "json");
-        client.get(apiUrl, params, handler);
-    }
-    
+//    public void getInterestingnessList(AsyncHttpResponseHandler handler) {
+//        String apiUrl = getApiUrl("?nojsoncallback=1&method=flickr.interestingness.getList");
+//        // Can specify query string params directly or through RequestParams.
+//        RequestParams params = new RequestParams();
+//        params.put("format", "json");
+//        client.get(apiUrl, params, handler);
+//    }
+
     /* 1. Define the endpoint URL with getApiUrl and pass a relative path to the endpoint
      * 	  i.e getApiUrl("statuses/home_timeline.json");
      * 2. Define the parameters to pass to the request (query or body)

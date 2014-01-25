@@ -2,8 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.corydominguez.tweetastic.FeedActivity" >
     
-    <item android:id="@+id/action_settings"
-        android:title="@string/action_settings"
-        android:orderInCategory="100"
-        android:showAsAction="never" />
+    <item android:id="@+id/action_compose"
+        android:icon="@drawable/ic_compose"
+        android:onClick="onCompose"
+        android:showAsAction="always" />
 </menu>

@@ -5,15 +5,21 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ListView;
 
 import com.corydominguez.tweetastic.R;
-import com.corydominguez.tweetastic.TweetasticApp;
+import com.corydominguez.tweetastic.adapters.FeedAdapter;
+import com.corydominguez.tweetastic.apps.TweetasticApp;
 import com.corydominguez.tweetastic.models.Tweet;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,8 +36,11 @@ public class FeedActivity extends Activity {
             public void onSuccess(String s) {
                 try {
                     TypeReference<ArrayList<Tweet>> tr = new TypeReference<ArrayList<Tweet>>() {};
-                    ArrayList<Tweet> response = mapper.readValue(s, tr);
-                    Log.d("DEBUG", response.toString());
+                    ArrayList<Tweet> tweets = mapper.readValue(s, tr);
+                    ListView lvTweetFeed = (ListView) findViewById(R.id.lvTweetFeed);
+                    FeedAdapter adapter = new FeedAdapter(getBaseContext(), tweets);
+                    lvTweetFeed.setAdapter(adapter);
+                    Log.d("DEBUG", tweets.toString());
                 } catch (JsonParseException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -41,6 +50,9 @@ public class FeedActivity extends Activity {
         });
     }
 
+    public void onCompose(MenuItem menuItem) {
+        Log.d("DEBUG", "Trying to compose");
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -50,14 +62,14 @@ public class FeedActivity extends Activity {
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        return id == R.id.action_settings || super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//        return id == R.id.action_settings || super.onOptionsItemSelected(item);
+//    }
 
 
 }

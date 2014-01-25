@@ -7,7 +7,7 @@ import android.view.View;
 
 import com.codepath.oauth.OAuthLoginActivity;
 import com.corydominguez.tweetastic.R;
-import com.corydominguez.tweetastic.TwitterClient;
+import com.corydominguez.tweetastic.clients.TwitterClient;
 
 public class LoginActivity extends OAuthLoginActivity<TwitterClient> {
 
@@ -17,13 +17,6 @@ public class LoginActivity extends OAuthLoginActivity<TwitterClient> {
 		setContentView(R.layout.activity_login);
 	}
 
-	// Inflate the menu; this adds items to the action bar if it is present.
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.login, menu);
-		return true;
-	}
-	
 	// OAuth authenticated successfully, launch primary authenticated activity
 	// i.e Display application "homepage"
     @Override
