@@ -1,17 +1,33 @@
 package com.corydominguez.tweetastic.models;
 
+import com.activeandroid.Model;
+import com.activeandroid.annotation.Column;
+import com.activeandroid.annotation.Table;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 
-public class Tweet {
-    private Long id;
-    private String text;
-    private String createdAt;
-    private User user;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-    public Long getId() {
-        return id;
+@Table(name = "Tweet")
+public class Tweet extends Model {
+    @Column(name="TweetId", index = true, unique = true,
+            onUniqueConflict = Column.ConflictAction.REPLACE)
+    private Long id;
+    @Column(name = "Text")
+    private String text;
+    @Column(name="User")
+    private User user;
+    @Column(name="CreatedAt")
+    private Date createdAt;
+
+    public Tweet() {
+        super();
     }
 
+    public Long getTweetId() {
+        return id;
+    }
     public void setId(Long id) {
         this.id = id;
     }
@@ -24,14 +40,6 @@ public class Tweet {
         this.text = text;
     }
 
-    public String getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public User getUser() {
         return user;
     }
@@ -40,10 +48,23 @@ public class Tweet {
         this.user = user;
     }
 
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
     @JsonAnySetter
     public void anySetter(String key, Object value) {
         if (key.equals("created_at")) {
-            setCreatedAt(value.toString());
+            try {
+                createdAt = new SimpleDateFormat("EEE MMM d HH:mm:ss Z yyyy")
+                        .parse(value.toString());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -52,8 +73,8 @@ public class Tweet {
         return "Tweet{" +
                 "id=" + id +
                 ", text='" + text + '\'' +
-                ", createdAt='" + createdAt + '\'' +
                 ", user=" + user +
+                ", createdAt=" + createdAt +
                 '}';
     }
 }

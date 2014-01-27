@@ -1,21 +1,35 @@
 package com.corydominguez.tweetastic.models;
 
+import com.activeandroid.Model;
+import com.activeandroid.annotation.Column;
+import com.activeandroid.annotation.Table;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 
 /**
  * Created by coryd on 22/01/2014.
  */
-public class User {
+
+@Table(name = "User")
+public class User extends Model {
+    @Column(name = "UserId", index = true, unique = true,
+            onUniqueConflict = Column.ConflictAction.REPLACE)
     private Long id;
+    @Column(name = "ProfileImageUrl")
     private String profileImageUrl;
+    @Column(name = "Name")
     private String name;
+    @Column(name = "ScreenName")
     private String screenName;
 
-    public Long getId() {
+    public User() {
+        super();
+    }
+
+    public Long getUserId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setUserId(Long id) {
         this.id = id;
     }
 

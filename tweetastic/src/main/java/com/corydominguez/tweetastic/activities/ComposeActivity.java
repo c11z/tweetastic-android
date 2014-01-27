@@ -55,6 +55,7 @@ public class ComposeActivity extends Activity {
                 public void onSuccess(String s) {
                     try {
                         Tweet tweet = TweetasticApp.mapper.readValue(s, Tweet.class);
+                        tweet.save();
                         // When app returns to feed activity refresh is called
                         Log.d("DEBUG", tweet.toString());
                         finish();

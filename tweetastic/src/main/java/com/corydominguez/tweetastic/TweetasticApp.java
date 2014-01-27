@@ -1,7 +1,8 @@
 package com.corydominguez.tweetastic;
 
-import android.app.Application;
 import android.content.Context;
+
+import com.activeandroid.app.Application;
 import com.corydominguez.tweetastic.clients.TwitterClient;
 import com.corydominguez.tweetastic.models.User;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -37,6 +38,7 @@ public class TweetasticApp extends Application {
             .defaultDisplayImageOptions(defaultOptions)
             .build();
         ImageLoader.getInstance().init(config);
+
     }
 
     public static TwitterClient getRestClient() {
