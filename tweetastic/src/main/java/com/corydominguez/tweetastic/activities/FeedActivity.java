@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.Message;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
@@ -31,10 +30,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import static com.activeandroid.ActiveAndroid.beginTransaction;
-import static com.activeandroid.ActiveAndroid.endTransaction;
-import static com.activeandroid.ActiveAndroid.setTransactionSuccessful;
-
 public class FeedActivity extends Activity {
     private ListView lvTweetFeed;
     private FeedAdapter adapter;
@@ -51,13 +46,8 @@ public class FeedActivity extends Activity {
         if (isDatabaseEmpty() || isNetworkAvailable()) {
             // Under right conditions forget about persisted Tweets
             deleteAllRecords();
-            RequestParams params = new RequestParams();
-            params.put("count", "25");
-            moarTweets(params);
+            moarTweets(null);
         }
-        // Load Tweets from Database and initialize adapter
-        adapter.addAll(getAllTweets());
-
         // Load more tweets when feed list is scrolled to the bottom.
         lvTweetFeed.setOnScrollListener(new EndlessScrollListener() {
             @Override
@@ -68,9 +58,7 @@ public class FeedActivity extends Activity {
                     RequestParams params = new RequestParams();
                     params.put("max_id", oldest.getTweetId().toString());
                     moarTweets(params);
-                    adapter.addAll(getTweets("<", oldest.getTweetId()));
-                    sortAdapter();
-                }
+               }
             }
         });
     }
@@ -78,11 +66,6 @@ public class FeedActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        // There is a problem on resume, if tweets where posted during the time taken to compose the
-        // the new tweet then those tweets get skipped on the refresh tweets call. If I do not save
-        // the tweet during compose then most likely a refresh will be too fast to pick it up and
-        // the user will have the bad experience of not seeing their tweet get posted. Solution is
-        // to make an api call checking for the in between tweets and adding them.
         refreshTweets();
     }
 
@@ -101,8 +84,6 @@ public class FeedActivity extends Activity {
         RequestParams params = new RequestParams();
         params.put("since_id", youngest.getTweetId().toString());
         moarTweets(params);
-        adapter.addAll(getTweets(">", youngest.getTweetId()));
-        sortAdapter();
     }
 
     @Override
@@ -120,17 +101,13 @@ public class FeedActivity extends Activity {
                     TypeReference<ArrayList<Tweet>> tr = new TypeReference<ArrayList<Tweet>>() {};
                     ArrayList<Tweet> tweets = TweetasticApp.mapper.readValue(s, tr);
                     // Bulk save the tweets and users to the database
-                    beginTransaction();
-                    try {
-                        for (Tweet tweet : tweets) {
-                            tweet.getUser().save();
-                            tweet.save();
-                        }
-                        setTransactionSuccessful();
+                    for (Tweet tweet : tweets) {
+                        tweet.getUser().save();
+                        tweet.save();
                     }
-                    finally {
-                        endTransaction();
-                    }
+                    // Horribly inefficient
+                    adapter.clear();
+                    adapter.addAll(getAllTweets());
                 } catch (JsonParseException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -144,27 +121,15 @@ public class FeedActivity extends Activity {
                 if (s.contains("Rate limit exceeded")) {
                     assert (getApplicationContext() != null);
                     Toast.makeText(getApplicationContext(), "Rate Limit Exceeded",
-                                   Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT).show();
                 }
             }
-
-            @Override
-            protected void handleMessage(Message message) {
-                super.handleMessage(message);
-            }
-
-            @Override
-            protected void handleFailureMessage(Throwable throwable, String s) {
-                super.handleFailureMessage(throwable, s);
-            }
-
-            @Override
-            protected Message obtainMessage(int i, Object o) {
-                return super.obtainMessage(i, o);
-            }
         };
-
-        TweetasticApp.getRestClient().getHomeTimeline(params, handler);
+        if (params == null) {
+            TweetasticApp.getRestClient().getHomeTimeline(handler);
+        } else {
+            TweetasticApp.getRestClient().getHomeTimeline(params, handler);
+        }
     }
 
     private boolean isNetworkAvailable() {
@@ -175,14 +140,25 @@ public class FeedActivity extends Activity {
     }
 
     private Tweet getYoungest() {
-        return (Tweet) new Select().from(Tweet.class).orderBy("TweetId DESC").executeSingle();
+        Tweet youngest = new Select().from(Tweet.class).orderBy("TweetId DESC").executeSingle();
+        if (youngest == null) {
+            youngest = new Tweet();
+            youngest.setTweetId(Long.MIN_VALUE);
+        }
+        return youngest;
     }
 
     private Tweet getOldest() {
-        return (Tweet) new Select().from(Tweet.class).orderBy("TweetId ASC").executeSingle();
+        Tweet oldest = new Select().from(Tweet.class).orderBy("TweetId ASC").executeSingle();
+        if (oldest == null) {
+            oldest = new Tweet();
+            oldest.setTweetId(Long.MAX_VALUE);
+        }
+        return oldest;
     }
 
     private List<Tweet> getTweets(String operator, long tweetId) {
+        // Not used but still around in case I want to try and make things more performant.
         String whereClause = "TweetId " + operator + " " + tweetId;
         return new Select().from(Tweet.class).where(whereClause).orderBy("TweetId DESC").execute();
     }
@@ -211,6 +187,8 @@ public class FeedActivity extends Activity {
     }
 
     private void sortAdapter() {
+        // Not used since now I get clear adapter at every change and fill it with ordered list
+        // from sql query
         adapter.sort(new Comparator<Tweet>() {
             @Override
             public int compare(Tweet tweet, Tweet tweet2) {

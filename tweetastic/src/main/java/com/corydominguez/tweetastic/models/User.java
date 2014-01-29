@@ -5,15 +5,16 @@ import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 
+import java.util.List;
+
 /**
  * Created by coryd on 22/01/2014.
  */
 
 @Table(name = "User")
 public class User extends Model {
-    @Column(name = "UserId", index = true, unique = true,
-            onUniqueConflict = Column.ConflictAction.REPLACE)
-    private Long id;
+    @Column(name = "UserId")
+    private Long userId;
     @Column(name = "ProfileImageUrl")
     private String profileImageUrl;
     @Column(name = "Name")
@@ -25,12 +26,16 @@ public class User extends Model {
         super();
     }
 
+    public List<Tweet> tweets() {
+        return getMany(Tweet.class, "User");
+    }
+
     public Long getUserId() {
-        return id;
+        return userId;
     }
 
     public void setUserId(Long id) {
-        this.id = id;
+        this.userId = id;
     }
 
     public String getProfileImageUrl() {
@@ -59,6 +64,9 @@ public class User extends Model {
 
     @JsonAnySetter
     public void anySetter(String key, Object value) {
+        if (key.equals("id")) {
+            setUserId(Long.parseLong(value.toString()));
+        }
         if (key.equals("profile_image_url")) {
             setProfileImageUrl(value.toString());
         }
@@ -73,7 +81,7 @@ public class User extends Model {
                 "screenName='" + screenName + '\'' +
                 ", name='" + name + '\'' +
                 ", profileImageUrl='" + profileImageUrl + '\'' +
-                ", id=" + id +
+                ", userId=" + userId +
                 '}';
     }
 }
