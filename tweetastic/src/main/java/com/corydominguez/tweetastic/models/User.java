@@ -5,6 +5,7 @@ import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -12,7 +13,7 @@ import java.util.List;
  */
 
 @Table(name = "User")
-public class User extends Model {
+public class User extends Model implements Serializable {
     @Column(name = "UserId")
     private Long userId;
     @Column(name = "ProfileImageUrl")

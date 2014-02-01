@@ -5,8 +5,10 @@ import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 
+import java.io.Serializable;
+
 @Table(name = "Tweet")
-public class Tweet extends Model {
+public class Tweet extends Model implements Serializable {
     @Column(name="TweetId", index = true, unique = true, onUniqueConflict = Column.ConflictAction.REPLACE)
     private Long tweetId;
     @Column(name = "Text")
