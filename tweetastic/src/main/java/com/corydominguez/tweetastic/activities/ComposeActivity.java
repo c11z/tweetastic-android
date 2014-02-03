@@ -63,6 +63,7 @@ public class ComposeActivity extends Activity {
             params.put("status", status);
             TweetasticApp.getRestClient().postUpdate(params, new AsyncHttpResponseHandler() {
                 private Tweet newTweet;
+
                 @Override
                 public void onStart() {
                     super.onStart();
@@ -111,8 +112,6 @@ public class ComposeActivity extends Activity {
             });
         }
     }
-
-
 
     public void onCancel(View v) {
         // Do not pass go, do not collect 200 dollars

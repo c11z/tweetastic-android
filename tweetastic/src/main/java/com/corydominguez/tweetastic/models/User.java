@@ -22,6 +22,12 @@ public class User extends Model implements Serializable {
     private String name;
     @Column(name = "ScreenName")
     private String screenName;
+    @Column(name="Description")
+    private String description;
+    @Column(name="FollowersCount")
+    private Integer followersCount;
+    @Column(name="FriendsCount")
+    private Integer friendsCount;
 
     public User() {
         super();
@@ -63,6 +69,30 @@ public class User extends Model implements Serializable {
         this.screenName = screenName;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Integer getFollowersCount() {
+        return followersCount;
+    }
+
+    public void setFollowersCount(Integer followersCount) {
+        this.followersCount = followersCount;
+    }
+
+    public Integer getFriendsCount() {
+        return friendsCount;
+    }
+
+    public void setFriendsCount(Integer friendsCount) {
+        this.friendsCount = friendsCount;
+    }
+
     @JsonAnySetter
     public void anySetter(String key, Object value) {
         if (key.equals("id")) {
@@ -73,6 +103,12 @@ public class User extends Model implements Serializable {
         }
         if (key.equals("screen_name")) {
             setScreenName(value.toString());
+        }
+        if (key.equals("followers_count")) {
+            setFollowersCount(Integer.parseInt(value.toString()));
+        }
+        if (key.equals(("friends_count"))) {
+            setFriendsCount(Integer.parseInt(value.toString()));
         }
     }
 

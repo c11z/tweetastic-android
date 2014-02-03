@@ -7,20 +7,14 @@
     tools:context="com.corydominguez.tweetastic.FeedActivity"
     tools:ignore="MergeRootFrame" >
 
-    <ListView
+    <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/lvTweetFeed"
-        android:overScrollMode="always"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-    <ProgressBar
-        android:layout_centerInParent="true"
-        android:id="@+id/pbLoading"
-        android:visibility="invisible"
-        android:indeterminate="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/fmContainer">
+    </FrameLayout>
 </RelativeLayout>
 
